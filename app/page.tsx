@@ -9,7 +9,7 @@ import axios from 'axios';
 
 // Configure axios locally if lib/api is problematic
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: { 'Content-Type': 'application/json' }
 });
 
