@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Frontend application for KanbanLite — a modern task management platform.
 
-## Getting Started
+Features:
+- Create tasks
+- Update tasks
+- Delete tasks
+- Mark completed/pending
+- Responsive UI
+- Toast notifications
+- Animations
 
-First, run the development server:
+## Tech Stack
 
-```bash
+- Next.js (App Router)
+- React
+- Tailwind CSS
+- Axios
+- Framer Motion
+- Lucide Icons
+- React Hot Toast
+
+## Environment Variables
+
+Create `.env.local`:
+
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+
+NEXT_PUBLIC_API_URL=https://kanbanlite-backend.onrender.com/api
+
+## Run Locally
+
+Clone the repo:
+
+git clone https://github.com/YOUR_USERNAME/KanbanLite-Frontend.git
+
+Install dependencies:
+
+npm install
+
+Run app:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Live Demo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Frontend:
+https://kanban-lite-frontend-oico.vercel.app
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Backend:
+https://kanbanlite-backend.onrender.com
 
-## Learn More
+## Author
 
-To learn more about Next.js, take a look at the following resources:
+Built by: Jagrit Maggu
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+GitHub: https://github.com/JagritMaggu
