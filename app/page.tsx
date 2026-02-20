@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, MoreHorizontal, CheckCircle2, Circle, Trash2, Calendar, GripVertical, Search, Filter, RefreshCw, ChevronDown, Info, X, Moon, Sun } from 'lucide-react';
+import { Plus, MoreHorizontal, CheckCircle2, Circle, Trash2, Calendar, GripVertical, Search, Filter, RefreshCw, ChevronDown, Info, X, Moon, Sun, Pencil } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
@@ -31,6 +31,7 @@ const BoardColumn = ({
   tasks,
   onToggle,
   onDelete,
+  onEdit,
   onOpenModal,
   onDrop
 }: {
@@ -39,6 +40,7 @@ const BoardColumn = ({
   tasks: Task[],
   onToggle: (id: string, current: string) => void,
   onDelete: (id: string) => void,
+  onEdit: (task: Task) => void,
   onOpenModal: () => void,
   onDrop: (status: 'Pending' | 'Completed', e: React.DragEvent) => void
 }) => (
@@ -79,12 +81,20 @@ const BoardColumn = ({
               <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md ${getStatusColor(task.status)}`}>
                 {task.status}
               </span>
-              <button
-                onClick={() => onDelete(task._id)}
-                className="p-1 text-gray-400 hover:text-red-500 rounded-md transition-all cursor-pointer"
-              >
-                <Trash2 size={14} />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => onEdit(task)}
+                  className="p-1 text-gray-400 hover:text-blue-500 rounded-md transition-all cursor-pointer"
+                >
+                  <Pencil size={13} />
+                </button>
+                <button
+                  onClick={() => onDelete(task._id)}
+                  className="p-1 text-gray-400 hover:text-red-500 rounded-md transition-all cursor-pointer"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
 
             <h3 className={`font-semibold text-[var(--text-primary)] mb-1 line-clamp-2 ${task.status === 'Completed' ? 'line-through opacity-50' : ''}`}>
@@ -134,6 +144,7 @@ export default function Home() {
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   useEffect(() => {
     const hasSeenDisclaimer = localStorage.getItem('hasSeenDraggableDisclaimer');
@@ -172,18 +183,31 @@ export default function Home() {
     }
   };
 
-  const createTask = async (e: React.FormEvent) => {
+  const handleEdit = (task: Task) => {
+    setEditingTask(task);
+    setNewTask({ title: task.title, description: task.description });
+    setIsModalOpen(true);
+  };
+
+  const handleSaveTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTask.title.trim()) return toast.error('Title is required');
 
     try {
-      const response = await api.post('/tasks', newTask);
-      setTasks([response.data, ...tasks]);
+      if (editingTask) {
+        const response = await api.put(`/tasks/${editingTask._id}`, newTask);
+        setTasks(tasks.map(t => t._id === editingTask._id ? response.data : t));
+        toast.success('Task updated successfully');
+      } else {
+        const response = await api.post('/tasks', newTask);
+        setTasks([response.data, ...tasks]);
+        toast.success('Task created successfully');
+      }
       setNewTask({ title: '', description: '' });
+      setEditingTask(null);
       setIsModalOpen(false);
-      toast.success('Task created successfully');
     } catch (error) {
-      toast.error('Failed to create task');
+      toast.error(editingTask ? 'Failed to update task' : 'Failed to create task');
     }
   };
 
@@ -268,7 +292,11 @@ export default function Home() {
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setEditingTask(null);
+                setNewTask({ title: '', description: '' });
+                setIsModalOpen(true);
+              }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-md font-medium text-sm flex items-center gap-2 transition-all shadow-sm active:transform active:scale-95"
             >
               <Plus size={18} />
@@ -485,7 +513,12 @@ export default function Home() {
                     )}
                     onToggle={toggleStatus}
                     onDelete={deleteTask}
-                    onOpenModal={() => setIsModalOpen(true)}
+                    onEdit={handleEdit}
+                    onOpenModal={() => {
+                      setEditingTask(null);
+                      setNewTask({ title: '', description: '' });
+                      setIsModalOpen(true);
+                    }}
                     onDrop={handleDrop}
                   />
                 </div>
@@ -502,7 +535,12 @@ export default function Home() {
                     )}
                     onToggle={toggleStatus}
                     onDelete={deleteTask}
-                    onOpenModal={() => setIsModalOpen(true)}
+                    onEdit={handleEdit}
+                    onOpenModal={() => {
+                      setEditingTask(null);
+                      setNewTask({ title: '', description: '' });
+                      setIsModalOpen(true);
+                    }}
                     onDrop={handleDrop}
                   />
                 </div>
@@ -513,7 +551,11 @@ export default function Home() {
 
         {/* Floating Action Button (Mobile Only) */}
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditingTask(null);
+            setNewTask({ title: '', description: '' });
+            setIsModalOpen(true);
+          }}
           className="lg:hidden fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center z-40 active:scale-90 transition-transform"
         >
           <Plus size={28} />
@@ -554,8 +596,8 @@ export default function Home() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-[var(--card-bg)] p-8 rounded-md shadow-2xl z-50 border border-[var(--card-border)]"
             >
-              <h2 className="text-2xl font-bold mb-6 text-[var(--text-primary)]">New Task</h2>
-              <form onSubmit={createTask} className="flex flex-col gap-5">
+              <h2 className="text-2xl font-bold mb-6 text-[var(--text-primary)]">{editingTask ? 'Edit Task' : 'New Task'}</h2>
+              <form onSubmit={handleSaveTask} className="flex flex-col gap-5">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Title</label>
                   <input
@@ -590,7 +632,7 @@ export default function Home() {
                     type="submit"
                     className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-all shadow-md active:scale-95"
                   >
-                    Create Task
+                    {editingTask ? 'Save Changes' : 'Create Task'}
                   </button>
                 </div>
               </form>
